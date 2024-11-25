@@ -8,6 +8,7 @@ clf = tree.DecisionTreeClassifier()
 test = pd.read_csv('/Users/ericawolf/vscode/testdigits.csv')
 training = pd.read_csv('/Users/ericawolf/vscode/trainingdigits.csv')
 
+#get length of data
 print('The length of the test data is:',len(test))
 print('The length of the training data is:', len(training))
 
