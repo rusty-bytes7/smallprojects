@@ -1,8 +1,3 @@
-2025-02-10 20:06:48.071794
-Food: joint treats
-Reaction: none
-Stool Quality: same as below
-
 2025-02-10 20:07:58.573948
 Food: hydrolyzed food
 Reaction: vomited 2x last night
