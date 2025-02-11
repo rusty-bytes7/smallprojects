@@ -1,5 +1,5 @@
 #this program is a food log to track food introductions for Rusty and any physical reactions he may have to them
-
+#he has been on a hypoallergenic diet for almost 3 months now and I want to keep track of what he eats and how he reacts to it
 import datetime
 
 #class to log food and reactions
