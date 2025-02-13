@@ -2,3 +2,8 @@
 Food: hydrolyzed food
 Reaction: vomited 2x last night
 Stool Quality: soft-ish today but normal
+2025-02-13 15:08:40.776426
+Food: new joint treats
+Reaction: soft-ish poop yesterday
+Stool Quality: see above
+
