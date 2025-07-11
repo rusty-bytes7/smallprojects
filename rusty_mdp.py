@@ -1,5 +1,8 @@
 #this is the main file for the Rusty MDP project
 import copy
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
 def main():
     print("Welcome to the Rusty MDP!")
@@ -52,8 +55,8 @@ def main():
                 if action == "sleep":
                     if "tired" in state:
                         next_state = state.replace("tired", "rested")
-                        next_states.append((next_state, 0.7))  #mostly successful
-                        next_states.append((state, 0.3))       #sometimes stays tired
+                        next_states.append((next_state, 0.6))  #mostly successful
+                        next_states.append((state, 0.4))       #sometimes stays tired
                     else:
                         next_states.append((state, 1.0))
 
@@ -70,9 +73,9 @@ def main():
                     if "needs_bathroom" in state:
                         next_state = state.replace("needs_bathroom", "relieved")
                         if "bedroom" in state:
-                            #penalty: only 30% chance success in bedroom
-                            next_states.append((next_state, 0.6))
-                            next_states.append((state, 0.4)) #40% chance of failure
+                            #penalty: only 40% chance success in bedroom
+                            next_states.append((next_state, 0.4))
+                            next_states.append((state, 0.6)) #40% chance of failure
                         else:
                             next_states.append((next_state, 1.0))
                     else:
@@ -82,9 +85,9 @@ def main():
                 elif action == "play":
                     if "wants_attention" in state:
                         next_state = state.replace("wants_attention", "happy")
-                        next_states.append((next_state, 0.8))
+                        next_states.append((next_state, 0.7))
                     else:
-                        next_states.append((state, 0.2))
+                        next_states.append((state, 0.3))
                 #groom
                 elif action == "groom":
                     #rusty just stays in the same state
@@ -114,34 +117,33 @@ def main():
                     if "hungry" in state and action == "eat":
                         reward += 100
                     elif "hungry" in state and action != "eat":
-                        reward += -20
+                        reward += -40
 
                     #Satisfying tiredness
                     if "tired" in state and action == "sleep":
                         reward += 90
                     elif "tired" in state and action != "sleep":
-                        reward += -15
+                        reward += -35
 
                     #Satisfying bathroom needs
                     if "needs_bathroom" in state and action == "go_to_bathroom":
                         if "bedroom" in state:
-                            reward += -100 #Penalty for attempting bathroom in bedroom- naughty Rusty!
+                            reward += -150 #Penalty for attempting bathroom in bedroom- naughty Rusty!
                         elif "relieved" in s_prime:
-                            reward += 30
+                            reward += 40
                     elif "needs_bathroom" in state and action != "go_to_bathroom":
-                        reward += -20
+                        reward += -50
 
                     #Satisfying attention
                     if "wants_attention" in state and action == "play":
                         if "happy" in s_prime:
-                            reward += 66
+                            reward += 80
                     elif "wants_attention" in state and action != "play":
-                        reward += -25
-
+                        reward += -45
                     #No particular needs
                     if all(x not in state for x in ["hungry", "tired", "needs_bathroom", "wants_attention"]):
                         if action == "groom":
-                            reward += 35
+                            reward += 15
 
                     #Waiting penalty if Rusty has needs
                     if any(x in state for x in ["hungry", "tired", "needs_bathroom", "wants_attention"]) and action == "wait":
@@ -157,7 +159,7 @@ def main():
     rusty_reward_function = build_rusty_reward_function(rusty_states, rusty_actions, rusty_transition_function)
 
     #value iteration using the transition and reward functions
-    gamma = 0.9  #Discount factor
+    gamma = 0.8  #Discount factor
 
     #utility function for value iteration
     def value_iteration(states, actions, transition_probs, rewards, gamma, threshold=0.01):
@@ -206,24 +208,28 @@ def main():
     print("Policy:", policy)
     import matplotlib.pyplot as plt
 
-    # Assuming you have your 'utilities' dictionary
-    rooms = ["living_room", "kitchen", "bedroom"]
-    states_by_room = {room: [] for room in rooms}
-    for state in utilities:
-        for room in rooms:
-            if room in state:
-                states_by_room[room].append((state, utilities[state]))
+    # Organize utilities into a dataframe for heatmap: rows = condition, columns = room
+    conditions = ['tired', 'rested', 'hungry', 'fed', 'needs_bathroom', 'relieved', 'wants_attention', 'happy']
+    rooms = ['living_room', 'kitchen', 'bedroom']
+    data = []
 
-    # Plot utilities per room
-    for room in rooms:
-        labels = [s[0] for s in states_by_room[room]]
-        values = [s[1] for s in states_by_room[room]]
-        plt.figure(figsize=(8, 2))
-        plt.barh(labels, values)
-        plt.title(f"Utility Values in {room.capitalize()}")
-        plt.xlabel("Utility")
-        plt.tight_layout()
-        plt.show()
+    for cond in conditions:
+        row = []
+        for room in rooms:
+            key = f"{cond}_{room}"
+            row.append(rounded_utilities.get(key, None))
+        data.append(row)
+
+    df = pd.DataFrame(data, index=conditions, columns=rooms)
+
+    # Create the heatmap
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(df, annot=True, cmap="magma", center=0, linewidths=.5)
+    plt.title("Utility Heatmap by Room and State Condition")
+    plt.ylabel("Condition")
+    plt.xlabel("Room")
+    plt.tight_layout()
+    plt.show()
 
 
 main()
